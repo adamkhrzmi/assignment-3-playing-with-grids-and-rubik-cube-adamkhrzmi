@@ -1,157 +1,129 @@
+
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const RubikCubeApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class RubikCubeApp extends StatelessWidget {
+  const RubikCubeApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '2x2 Rubik\'s Cube',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const CubeScreen(),
+      debugShowCheckedModeBanner: false,
+      home: RubikCubeScreen(),
     );
   }
 }
 
-class CubeState {
-  List<List<Color>> faces = [
-    [Colors.red, Colors.red, Colors.red, Colors.red], // Front
-    [Colors.blue, Colors.blue, Colors.blue, Colors.blue], // Left
-    [Colors.green, Colors.green, Colors.green, Colors.green], // Right
-    [Colors.yellow, Colors.yellow, Colors.yellow, Colors.yellow], // Back
-    [Colors.orange, Colors.orange, Colors.orange, Colors.orange], // Top
-    [Colors.white, Colors.white, Colors.white, Colors.white], // Bottom
+class RubikCubeScreen extends StatefulWidget {
+  @override
+  _RubikCubeScreenState createState() => _RubikCubeScreenState();
+}
+
+class _RubikCubeScreenState extends State<RubikCubeScreen> {
+  // Initialize cube faces with colors
+  List<List<Color>> cubeFaces = [
+    List.filled(4, Colors.white), // Front
+    List.filled(4, Colors.yellow), // Back
+    List.filled(4, Colors.red), // Left
+    List.filled(4, Colors.orange), // Right
+    List.filled(4, Colors.green), // Top
+    List.filled(4, Colors.blue), // Bottom
   ];
 
-  // Rotate top face to the left, modify if necessary
-  void rotateTop() {
-    // Store the top row of each face
-    List<Color> topRowFront = [faces[0][0], faces[0][1]];
-    List<Color> topRowLeft = [faces[1][0], faces[1][1]];
-    List<Color> topRowRight = [faces[2][0], faces[2][1]];
-    List<Color> topRowBack = [faces[3][0], faces[3][1]];
-
-    // Rotate top face
-    List<Color> tempTop = [...faces[4]];
-    faces[4] = [tempTop[2], tempTop[3], tempTop[0], tempTop[1]];
-
-    // Update adjacent faces
-    faces[0] = [faces[3][2], faces[3][3], ...faces[0].sublist(2)];
-    faces[1] = [faces[0][2], faces[0][3], ...faces[1].sublist(2)];
-    faces[2] = [faces[1][2], faces[1][3], ...faces[2].sublist(2)];
-    faces[3] = [faces[2][2], faces[2][3], ...faces[3].sublist(2)];
-  }
-  
-  // Rotate top face to the left, modify if necessary
-  void rotateBottom() {
-    //Need to implement your code here
-  }
-}
-
-class CubeScreen extends StatefulWidget {
-  const CubeScreen({Key? key}) : super(key: key);
-
-  @override
-  _CubeScreenState createState() => _CubeScreenState();
-}
-
-class _CubeScreenState extends State<CubeScreen> {
-  CubeState cube = CubeState();
-
-  void rotateTop() {
+  // Rotate a face clockwise
+  void rotateFaceClockwise(int faceIndex) {
     setState(() {
-      cube.rotateTop();
+      var face = cubeFaces[faceIndex];
+      cubeFaces[faceIndex] = [face[2], face[0], face[3], face[1]];
     });
   }
 
-  Widget buildFace(List<Color> faceColors) {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 2.0,
-        crossAxisSpacing: 2.0,
-      ),
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 4,
-      itemBuilder: (context, index) => Container(color: faceColors[index]),
-    );
+  // Rotate a face counterclockwise
+  void rotateFaceCounterclockwise(int faceIndex) {
+    setState(() {
+      var face = cubeFaces[faceIndex];
+      cubeFaces[faceIndex] = [face[1], face[3], face[0], face[2]];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('2x2 Rubik\'s Cube'),
-        // instead of using an icon button here, create atleast 2 buttons to rotate the faces, rotate left face, or rotate right face, or implement all rotations.
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.rotate_left),
-            onPressed: rotateTop,
-          )
-        ],
+        title: const Text('2x2 Rubik Cube'),
+        backgroundColor: Colors.black,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Top face
-            Column(
-              children: [
-                const Text('Top'),
-                SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: buildFace(cube.faces[4]),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 4,
+                child: AspectRatio(
+                  aspectRatio: 1, // Ensure the grid is a square
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 4,
+                    ),
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        color: cubeFaces[0][index],
+                        margin: const EdgeInsets.all(4),
+                      );
+                    },
+                  ),
                 ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Left face
-                Column(
+              ),
+              const SizedBox(height: 20),
+              Flexible(
+                flex: 2,
+                child: Column(
                   children: [
-                    const Text('Left'),
-                    SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: buildFace(cube.faces[1]),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => rotateFaceClockwise(0),
+                          child: const Text('Rotate Front Clockwise'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => rotateFaceCounterclockwise(0),
+                          child: const Text('Rotate Front Counterclockwise'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => rotateFaceClockwise(4),
+                          child: const Text('Rotate Top Clockwise'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => rotateFaceCounterclockwise(4),
+                          child: const Text('Rotate Top Counterclockwise'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                // Front face
-                SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: buildFace(cube.faces[0]),
-                ),
-                // Right face
-                Column(
-                  children: [
-                    const Text('Right'),
-                    SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: buildFace(cube.faces[2]),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            // Bottom face , implement your bottom face
-            // Rear face, implement your rear face
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
