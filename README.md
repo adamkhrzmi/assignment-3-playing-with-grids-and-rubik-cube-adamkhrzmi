@@ -2,9 +2,9 @@
 # Assignment 2: Play with a 2x2 Rubik Cube
 by 
 
-**NAME**:
+**NAME**: adam khuarizmi bin maszlan
 
-**Matric ID**
+**Matric ID** 2115347
 
 ## Objective
 
